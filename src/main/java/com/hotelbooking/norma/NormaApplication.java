@@ -38,7 +38,7 @@ public class NormaApplication {
 						.addList("bearer-jwt", Arrays.asList("read", "write"))
 						.addList("bearer-key", Collections.emptyList()))
 				.servers(Arrays.asList(
-					new Server().url("http://localhost:9530/")
+					new Server().url("http://localhost:9530")
 						.description("Local Development URL")));
 
 	}

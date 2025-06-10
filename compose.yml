@@ -1,0 +1,43 @@
+services:
+  norma-db:
+    container_name: norma-db
+    ports:
+      - 3366:3306    
+    expose:
+      - "3366"
+    image: "mysql:latest"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: norma-db
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+  
+  norma:
+    ports:
+      - 9530:9530
+    image: "mowumi/norma:v1"
+    container_name: norma-ms
+    depends_on:
+      norma-db:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "norma"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_DATASOURCE_URL: "jdbc:mysql://norma-db:3306/norma-db?useSSL=false&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "admin"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+      JWT_SECRET: "${JWT_SECRET}"
+      PAYSTACK_SECRET: ${PAYSTACK_SECRET}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      HOTEL-IMAGES-FOLDER-ID: ${HOTEL_IMAGES_FOLDER_ID}
+      ROOM-IMAGES-FOLDER-ID: ${ROOM_IMAGES_FOLDER_ID}
+
+networks:
+  norma:
+    driver: "bridge"

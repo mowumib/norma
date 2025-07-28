@@ -6,13 +6,13 @@ public interface OtpService {
 
     public String generateOtp();
 
-    public void saveOtp(String userId, String otpCode);
+    public void saveOtp(String userCode, String otpCode);
 
-    public OtpValidationResult validateOtp(String userId, String otpCode);
+    public OtpValidationResult validateOtp(String userCode, String otpCode);
     
-    public void deleteOtpByUserId(String userId);
+    public void deleteOtpByUserCode(String userCode);
 
-    public void resendOtp(String userId);
+    public String requestOtp(String userCode);
 
 
 }

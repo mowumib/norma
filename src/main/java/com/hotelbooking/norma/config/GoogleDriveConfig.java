@@ -22,7 +22,7 @@ public class GoogleDriveConfig {
 
     private static final String APPLICATION_NAME = "HotelPhotoUploader"; // Your application name
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final String SERVICE_ACCOUNT_KEY_PATH = "credentials/norma-462118-132ce6db6c1d.json"; // Update this with your actual JSON file name
+    private static final String SERVICE_ACCOUNT_KEY_PATH = "credentials/norma.json";
 
     @Bean
     Drive googleDriveService() throws IOException, GeneralSecurityException {

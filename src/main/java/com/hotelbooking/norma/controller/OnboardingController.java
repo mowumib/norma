@@ -1,6 +1,7 @@
 package com.hotelbooking.norma.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,10 +22,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/onboarding")
+@RequestMapping("/norma/identity/user/")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "ONBOARDING REST APIS", description = "REST APIS FOR ONBOARDING USERS")
+@Tag(name = "Identity REST APIS", description = "REST APIS FOR ONBOARDING USERS")
 public class OnboardingController {
 
     private final OnboardingService service;
@@ -32,9 +33,9 @@ public class OnboardingController {
         summary = "SIGNUP REST API",
         description = "REST API for users to register"
     )
-    @PostMapping("/user/signup")
+    @PostMapping("/signup")
     public ResponseEntity<ResponseModel> RegisterUser(@Valid @RequestBody RegisterUserRequestDto dto) {
-        ResponseModel responseModel = service.registerUser(dto);
+        ResponseModel responseModel = service.register(dto);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
@@ -42,9 +43,9 @@ public class OnboardingController {
         summary = "LOGIN REST API",
         description = "REST API for users to login"
     )
-    @PostMapping("/user/login")
+    @PostMapping("/login")
     public ResponseEntity<ResponseModel> loginUser(@Valid @RequestBody LoginRequestDto dto) {
-        ResponseModel responseModel = service.loginUser(dto);
+        ResponseModel responseModel = service.login(dto);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
@@ -52,9 +53,9 @@ public class OnboardingController {
         summary = "Verify OTP Code REST API",
         description = "REST API to verify OTP Code"
     )
-    @PostMapping("/user/verify-otp-code")
-    public ResponseEntity<ResponseModel> verifyOtpCode(@RequestBody OtpTokenValidatorDto dto) {
-        ResponseModel responseModel = service.verifyOtpCode(dto);
+    @PostMapping("/verify-otp-code")
+    public ResponseEntity<ResponseModel> verifyOtp(@RequestBody OtpTokenValidatorDto dto) {
+        ResponseModel responseModel = service.verifyOtp(dto);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
@@ -62,19 +63,34 @@ public class OnboardingController {
         summary = "Resend OTP Code REST API",
         description = "REST API to resend OTP Code"
     )
-    @PostMapping("/user/resend-otp-code")
-    public ResponseEntity<ResponseModel> resendOtpCode(@RequestParam String email) {
-        ResponseModel responseModel = service.resendOtpCode(email);
+    @PostMapping("/resend-otp-code")
+    public ResponseEntity<ResponseModel> resendOtp(@RequestParam String email) {
+        ResponseModel responseModel = service.resendOtp(email);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
     @Operation(
-        summary = "Resend OTP Code REST API",
-        description = "REST API to resend OTP Code"
+        summary = "Change Password REST API",
+        description = "REST API to Update Password"
     )
-    @PostMapping("/user/update-password")
-    public ResponseEntity<ResponseModel> updatePassword(@RequestBody UpdatePasswordDto dto) {
-        ResponseModel responseModel = service.updatePassword(dto);
+    @PostMapping("/change-password")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<ResponseModel> changePassword(@RequestBody UpdatePasswordDto dto) {
+        ResponseModel responseModel = service.changePassword(dto);
+        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
+    }
+
+    @Operation(summary = "Forgot password") 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseModel> forgotPassword(@RequestParam String email) {
+       ResponseModel responseModel = service.forgotPassword(email);
+        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
+    }
+
+    @Operation(summary = "Reset password")
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseModel> resetPassword(@RequestParam String email, @RequestParam String otpCode, @RequestParam String newPassword) {
+       ResponseModel responseModel = service.resetPassword(email, otpCode, newPassword);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 }

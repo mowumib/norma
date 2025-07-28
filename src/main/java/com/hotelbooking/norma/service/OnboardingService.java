@@ -10,13 +10,17 @@ import com.hotelbooking.norma.dto.Request.UpdatePasswordDto;
 import com.hotelbooking.norma.dto.otp.OtpTokenValidatorDto;
 
 public interface OnboardingService {
-    public ResponseModel registerUser(@RequestBody RegisterUserRequestDto dto);
+    public ResponseModel register(@RequestBody RegisterUserRequestDto dto);
 
-    public ResponseModel loginUser(@RequestBody LoginRequestDto dto);
+    public ResponseModel login(@RequestBody LoginRequestDto dto);
 
-    public ResponseModel verifyOtpCode(@RequestBody OtpTokenValidatorDto dto);
+    public ResponseModel verifyOtp(@RequestBody OtpTokenValidatorDto dto);
 
-    public ResponseModel resendOtpCode(@RequestParam String email);
+    public ResponseModel resendOtp(@RequestParam String email);
 
-    public ResponseModel updatePassword(@RequestBody UpdatePasswordDto dto);
+    public ResponseModel changePassword(@RequestBody UpdatePasswordDto dto);
+
+    public ResponseModel forgotPassword(String email);
+
+    public ResponseModel resetPassword(String email, String otpCode, String newPassword);
 }

@@ -59,7 +59,6 @@ public class JwtUtils {
         return Jwts.builder()
             .setSubject(email)
             .setIssuedAt(new Date())
-            // .claim("id", user.getId())
             .claim("userCode", user.getUserCode())
             .claim("name", user.getName())
             .claim("roles", roles)

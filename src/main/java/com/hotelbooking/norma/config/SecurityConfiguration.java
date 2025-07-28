@@ -34,7 +34,9 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/onboarding/user/signup/**","/onboarding/user/login/**", "/onboarding/user/verify-otp-code/**","/error").permitAll()
+                    .requestMatchers("/norma/identity/user/signup/**","/norma/identity/user/login/**", 
+                    "/norma/identity/user/verify-otp-code/**", "/norma/identity/user/forgot-password/**", 
+                    "/norma/identity/user/reset-password/**", "/norma/identity/user/resend-otp-code/**", "/error").permitAll()
                     .anyRequest().authenticated()
                 );
         http.authenticationProvider(authenticationProvider());

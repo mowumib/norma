@@ -15,16 +15,9 @@ public final class Message {
     public static final String NOT_FOUND = "%s not found";
     public static final String NULL_ARGUMENT = "%s is empty.";
     public static final String ALREADY_EXISTS = "%s already exists";
+    public static final String SUCCESS_SENT = "%s sent successfully";
 
-    
-    
-    public static final String TOKEN_OBTAINED_SUCCESSFULLY = "Access token obtained successfully";
-    public static final String DECRYPTED_SUCCESSFULLY = "Client ID and secret key decrypted successfully";
     public static final String REGISTERED_SUCCESSFULLY = "Client registered successfully";
-    public static final String VERSION = "Version must be 1 to 30 characters and not contain special characters";
-    public static final String AUTH_HEADER_ERROR = "Auth header name must not contain special characters.";
-    public static final String API_KEY_HEADER_ERROR = "Api key header name must not contain special characters.";
-
     public static final String INVALID_CREDENTIALS = "Invalid Credentials";
     public static final String INVALID_TOKEN = "Invalid Token";
     public static final String INVALID_USER = "Invalid User";

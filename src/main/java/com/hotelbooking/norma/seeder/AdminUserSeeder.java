@@ -3,12 +3,14 @@ package com.hotelbooking.norma.seeder;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
 
 import com.hotelbooking.norma.entity.Role;
 import com.hotelbooking.norma.entity.User;
@@ -20,6 +22,9 @@ import com.hotelbooking.norma.repository.UserRepository;
 @Component
 @Order(2)
 public class AdminUserSeeder implements ApplicationListener<ContextRefreshedEvent> {
+
+    @Value("${adminEmail}")
+    private String adminEmail;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -37,8 +42,6 @@ public class AdminUserSeeder implements ApplicationListener<ContextRefreshedEven
     }
 
     private void seedAdminUser() {
-        String adminEmail = "admin@example.com";
-
         if (!userRepository.existsByEmail(adminEmail)) {
             Role adminRole = roleRepository.findByRoleName(RoleEnum.ADMIN)
                     .orElseThrow(() -> new RuntimeException("ADMIN role not found. Make sure RoleSeeder runs first."));

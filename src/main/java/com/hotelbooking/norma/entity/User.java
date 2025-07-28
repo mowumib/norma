@@ -45,8 +45,8 @@ public class User implements UserDetails{
     @Column(name= "password", nullable = false)
     private String password;
 
-    @Column(name= "is_validated", nullable = false)
-    private boolean isValidated = false;
+    @Column(name= "is_email_verified", nullable = false)
+    private boolean isEmailVerified = false;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role_assignments", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))

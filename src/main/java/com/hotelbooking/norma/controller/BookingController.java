@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-@RequestMapping("/bookings")
+@RequestMapping("/norma/bookings")
 @Tag(name = "Booking Controller REST API IN USER SERVICE", description = "Booking APIs")
 public class BookingController {
 

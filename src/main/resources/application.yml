@@ -37,7 +37,8 @@ paystack:
     base-url: https://api.paystack.co
     secret-key: ${PAYSTACK_SECRET}
 
+adminEmail: ${ADMIN_EMAIL}
 
 googleDrive:
-    hotel-images-folder-id: {HOTEL_IMAGES_FOLDER_ID}
-    room-images-folder-id: {ROOM_IMAGES_FOLDER_ID}
+    hotel-images-folder-id: ${HOTEL_IMAGES_FOLDER_ID}
+    room-images-folder-id: ${ROOM_IMAGES_FOLDER_ID}

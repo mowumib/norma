@@ -1,10 +1,10 @@
 package com.hotelbooking.norma.paystack.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,23 +16,22 @@ public class PaystackPaymentVerificationResponse {
 
     @Data
     public static class PaymentVerificationResponse {
-        private long id;                     // Transaction ID
-        private String domain;               // Domain of the transaction (live or test)
-        private String status;               // Status of the payment (e.g., success)
-        private String reference;            // Transaction reference
-        private String receipt_number;       // Receipt number (if any)
-        private int amount;                  // Amount paid (in kobo)
-        private String gateway_response;     // Gateway response (e.g., "Successful")
-        private String paid_at;              // Date/time the payment was made
-        private String created_at;           // Date/time the transaction was created
-        private String channel;              // Payment channel (e.g., card)
-        private String currency;             // Currency (e.g., NGN)
-        private String ip_address;           // IP address of the customer
-        private String metadata;             // Metadata (if any)
-        private Log log;                     // Log of the transaction process
-        private int fees;                    // Transaction fees
-        private Authorization authorization; // Authorization details for the transaction
-        private Customer customer;           // Customer details
+        private long id;                     
+        private String domain;               
+        private String status;               
+        private String reference;            
+        private String receipt_number;       
+        private int amount;                 
+        private String gateway_response;     
+        private String paid_at;              
+        private String created_at;           
+        private String channel;              
+        private String currency;             
+        private String ip_address;           
+        private Log log;                     
+        private int fees;                    
+        private Authorization authorization; 
+        private Customer customer;          
 
         @Data
         public static class Log {
@@ -75,8 +74,10 @@ public class PaystackPaymentVerificationResponse {
             private String first_name;
             private String last_name;
             private String email;
-            private String user_code;
+            private String customer_code;
             private String phone;
+            private String metadata;
+            private String risk_action;
         }
     }
 }

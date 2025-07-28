@@ -11,12 +11,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.api.client.http.InputStreamContent;
-import com.google.api.client.util.Value;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class RoomServiceImpl implements RoomService {
 
-    @Value ("${googleDrive.room-images-folder-id}")
+    @Value("${googleDrive.room-images-folder-id}")
     private String imagesFolderId;
 
     private final HotelRepository hotelRepository;

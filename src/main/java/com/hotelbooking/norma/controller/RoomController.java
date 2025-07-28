@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/norma/rooms")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "ROOM CONTROLLER REST APIS IN HOTEL SERVICE", description = "REST APIS IN HOTEL SERVICE")
@@ -34,10 +34,7 @@ public class RoomController {
     private final RoomService roomService;
     
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-        summary = "Add room by hotel code",
-        description = "REST API for adding a room"
-    )
+    @Operation(summary = "Add room by hotel code")
     @PostMapping(value = "/add-room", consumes = "multipart/form-data")
     public ResponseEntity<ResponseModel> addRoom(@RequestParam String hotelCode, @ModelAttribute @Valid RoomDto dto) 
     throws SQLException, IOException{
@@ -46,10 +43,7 @@ public class RoomController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENT')")
-    @Operation(
-        summary = "Get room by code",
-        description = "REST API for getting a room"
-    )
+    @Operation(summary = "Get room by code")
     @GetMapping("/room")
     public ResponseEntity<ResponseModel> getRoomByRoomCode(@RequestParam String roomCode) {
         ResponseModel responseModel = roomService.getRoomByRoomCode(roomCode);
@@ -57,43 +51,31 @@ public class RoomController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-        summary = "Get all available rooms by hotel code",
-        description = "REST API for getting all available rooms"
-    )
-    @GetMapping("/all-available-rooms")
+    @Operation(summary = "Get all available rooms by hotel code")
+    @GetMapping("/available-rooms")
     public ResponseEntity<ResponseModel> getAllAvailableRoom(@RequestParam String hotelCode) {
         ResponseModel responseModel = roomService.getAllAvailableRoom(hotelCode);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-        summary = "Get all booked rooms by hotel code",
-        description = "REST API for getting all booked room"
-    )
-    @GetMapping("/all-booked-rooms")
+    @Operation(summary = "Get all booked rooms by hotel code")
+    @GetMapping("/booked-rooms")
     public ResponseEntity<ResponseModel> getAllBookedRoom(@RequestParam String hotelCode) {
         ResponseModel responseModel = roomService.getAllBookedRoom(hotelCode);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-        summary = "Get all rooms",
-        description = "REST API for getting all rooms"
-    )
-    @GetMapping("/all-rooms")
+    @Operation(summary = "Get all rooms")
+    @GetMapping("")
     public ResponseEntity<ResponseModel> getAllRooms(@RequestParam String hotelCode) {
         ResponseModel responseModel = roomService.getAllRooms(hotelCode);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-        summary = "Delete room by room code",
-        description = "REST API for deleting room"
-    )
+    @Operation(summary = "Delete room by room code")
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseModel> deleteRoomByRoomCode(@RequestParam String roomCode) {
         ResponseModel responseModel = roomService.deleteRoomByRoomCode(roomCode);
@@ -101,10 +83,7 @@ public class RoomController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-        summary = "Update room by room code",
-        description = "REST API for updating room"
-    )
+    @Operation(summary = "Update room by room code")
     @PostMapping(value = "/update-room", consumes = "multipart/form-data")
     public ResponseEntity<ResponseModel> updateRoomByRoomCode(@RequestParam String roomCode, @ModelAttribute UpdateRoomRequest dto) {
         ResponseModel responseModel = roomService.updateRoomByRoomCode(roomCode, dto);

@@ -6,7 +6,7 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.hotelbooking.norma.dto.otp.OtpValidationResult;
-import com.hotelbooking.norma.entity.otp.OTP;
+import com.hotelbooking.norma.entity.OTP;
 import com.hotelbooking.norma.repository.OtpRepository;
 import com.hotelbooking.norma.service.OtpService;
 
@@ -25,19 +25,20 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    public void saveOtp(String userId, String otpCode) {
+    public void saveOtp(String userCode, String otpCode) {
         // Set expiration time to 5 minutes from now
         LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(5);
 
         // Check if OTP exists for user, if yes update, else create new
-        OTP existingOTP = otpRepository.findByUserIdAndUsedFalse(userId);
+        OTP existingOTP = otpRepository.findByUserCodeAndUsedFalse(userCode);
         if (existingOTP != null) {
             existingOTP.setOtpCode(otpCode);
             existingOTP.setExpirationTime(expirationTime);
-            existingOTP.setUsed(false); // Reset the used flag
+            existingOTP.setUsed(false);
+            otpRepository.save(existingOTP);
         } else {
             OTP otp = new OTP();
-            otp.setUserId(userId);
+            otp.setUserCode(userCode);
             otp.setOtpCode(otpCode);
             otp.setExpirationTime(expirationTime);
             otp.setUsed(false);
@@ -46,13 +47,13 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    public OtpValidationResult validateOtp(String userId, String otpCode) {
+    public OtpValidationResult validateOtp(String userCode, String otpCode) {
         LocalDateTime now = LocalDateTime.now();
 
         // Optional: clean up expired OTPs
         otpRepository.deleteByExpirationTimeBefore(now);
 
-        OTP otp = otpRepository.findByUserIdAndUsedFalse(userId);
+        OTP otp = otpRepository.findByUserCodeAndUsedFalse(userCode);
         if (otp == null) {
             return new OtpValidationResult(false, "No active OTP found or it has already been used.");
         }
@@ -71,13 +72,15 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    public void deleteOtpByUserId(String userId) {
-        otpRepository.deleteByUserId(userId);
+    public void deleteOtpByUserCode(String userCode) {
+        otpRepository.deleteByUserCode(userCode);
     }
 
     @Override
-    public void resendOtp(String userId) {
+    public String requestOtp(String userCode) {
         String newOTP = generateOtp();
-        saveOtp(userId, newOTP);
+        saveOtp(userCode, newOTP);
+        return String.valueOf(newOTP);
+        
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,7 +28,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/hotels")
+@RequestMapping("/norma/hotels")
 @RequiredArgsConstructor
 @Validated
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -53,8 +54,8 @@ public class HotelController {
         summary = "Get hotel by code",
         description = "REST API for getting a hotel"
     )
-    @GetMapping("/hotel-by-code")
-    public ResponseEntity<ResponseModel> getHotelByHotelCode(@RequestParam String hotelCode) {
+    @GetMapping("/hotel-by-code/{hotelCode}")
+    public ResponseEntity<ResponseModel> getHotelByHotelCode(@PathVariable String hotelCode) {
         ResponseModel responseModel = hotelService.getHotelByHotelCode(hotelCode);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
@@ -64,7 +65,7 @@ public class HotelController {
         summary = "Get all hotels",
         description = "REST API for getting all hotels"
     )
-    @GetMapping("/all-hotels")
+    @GetMapping("")
     public ResponseEntity<ResponseModel> getAllHotels() {
         return ResponseEntity.ok(hotelService.getAllHotels());
     }
@@ -74,7 +75,7 @@ public class HotelController {
         summary = "Delete hotel by code",
         description = "REST API for deleting a hotel"
     )
-    @DeleteMapping("/delete")
+    @DeleteMapping("")
     public ResponseEntity<ResponseModel> deleteHotelByHotelCode(@RequestParam String hotelCode) {
         ResponseModel responseModel = hotelService.deleteHotelByHotelCode(hotelCode);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
@@ -85,8 +86,8 @@ public class HotelController {
         summary = "Get hotel by location",
         description = "REST API for getting all hotels by location"
     )
-    @GetMapping("/hotel-by-location")
-    public ResponseEntity<ResponseModel> getHotelByLocation(@RequestParam String location) {
+    @GetMapping("/hotel-by-location/{location}")
+    public ResponseEntity<ResponseModel> getHotelByLocation(@PathVariable String location) {
         ResponseModel responseModel = hotelService.getHotelByLocation(location);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
@@ -96,8 +97,8 @@ public class HotelController {
         summary = "Get hotel by name",
         description = "REST API for getting hotel by name"
     )
-    @GetMapping("/hotel-by-name")
-    public ResponseEntity<ResponseModel> getHotelByName(@RequestParam String name) {
+    @GetMapping("/hotel-by-name/{name}")
+    public ResponseEntity<ResponseModel> getHotelByName(@PathVariable String name) {
         ResponseModel responseModel = hotelService.getHotelByName(name);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }

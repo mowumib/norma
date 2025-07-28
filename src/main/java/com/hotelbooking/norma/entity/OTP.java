@@ -1,4 +1,4 @@
-package com.hotelbooking.norma.entity.otp;
+package com.hotelbooking.norma.entity;
 
 import java.time.LocalDateTime;
 
@@ -21,8 +21,8 @@ public class OTP {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private String userId;
+    @Column(name = "user_code", nullable = false)
+    private String userCode;
 
     @Column(name = "otp_code", nullable = false)
     private String otpCode;

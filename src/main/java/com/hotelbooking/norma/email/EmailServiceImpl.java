@@ -34,7 +34,15 @@ public class EmailServiceImpl implements EmailService{
     @Value("${spring.mail.username}")
     private String from;
 
-    // @RabbitListener(queues = "${rabbitmq.email.queue}")
+    @Override
+    // @RabbitListener(queues = {RabbitMQConfig.EMAIL_QUEUE})
+    public void consumeAndSendEmail(SendEmailRequest request) {
+        log.info("Received email request from queue for recipient: {}", request.getRecipient());
+        
+        // This method will now trigger the robust, async, and retryable email sending logic.
+        sendTemplatedEmail(request);
+    }
+    
     @Override
     public String appendPlaceholders(String templateName, Map<String, String> placeholders) {
         String emailContent = getEmailTemplate(templateName);

@@ -8,7 +8,7 @@ spring:
         host: smtp.gmail.com
         port: 587
         username: ${MAIL_USERNAME}
-        password: ${MAIL_PASSWORD}
+        password: ${MAIL_PASSWORD:xwrnvhrfhyxjrmgj}
         properties:
             mail:
                 smtp:
@@ -29,6 +29,13 @@ spring:
         username: root
         password: admin
 
+    # rabbitmq:
+    #     host: ${SPRING_RABBITMQ_HOST:localhost}
+    #     port: ${SPRING_RABBITMQ_PORT:5672}
+    #     username: guest
+    #     password: guest
+
+
 app:
     jwtSecret: "${JWT_SECRET}"
     jwtExpirationMS: 7200000
@@ -39,6 +46,7 @@ paystack:
 
 adminEmail: ${ADMIN_EMAIL}
 
-googleDrive:
-    hotel-images-folder-id: ${HOTEL_IMAGES_FOLDER_ID}
-    room-images-folder-id: ${ROOM_IMAGES_FOLDER_ID}
+cloudinary:
+    cloud_name: ${CLOUDINARY_CLOUD_NAME}
+    api_key: ${CLOUDINARY_API_KEY}
+    api_secret: ${CLOUDINARY_API_SECRET}

@@ -2,8 +2,8 @@ package com.hotelbooking.norma.entity;
 
 import java.util.List;
 
+import com.hotelbooking.norma.enums.RoomStatus;
 import com.hotelbooking.norma.enums.RoomType;
-import com.hotelbooking.norma.enums.Status;
 import com.hotelbooking.norma.utils.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -36,7 +36,7 @@ public class Room extends BaseEntity{
     private Integer roomPrice;
     
     @Column(name = "status", nullable = false)
-    private Status status;
+    private RoomStatus roomStatus;
 
     @Column(name = "room_description", nullable = false)
     private String roomDescription;
@@ -44,17 +44,11 @@ public class Room extends BaseEntity{
     @Column(name = "hotel_code")
     private String hotelCode;
 
-    @Column(name = "google_drive_file_id")
-    private String googleDriveFileId;
-
     @Column(name = "photo_url")
     private String photoUrl;  
 
     @Column(name = "photo_content_type")
     private String photoContentType;
-
-    // @Lob
-    // private Blob photo;
 
     @OneToMany(mappedBy = "room")
     private List<Booking> bookings;

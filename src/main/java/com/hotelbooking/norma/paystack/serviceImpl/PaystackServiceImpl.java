@@ -1,8 +1,10 @@
 package com.hotelbooking.norma.paystack.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,12 +12,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.hotelbooking.norma.dto.ResponseModel;
+import com.hotelbooking.norma.email.dto.SendEmailRequest;
 import com.hotelbooking.norma.entity.Booking;
 import com.hotelbooking.norma.entity.User;
+import com.hotelbooking.norma.enums.BookingStatus;
 import com.hotelbooking.norma.enums.PaymentStatus;
 import com.hotelbooking.norma.exception.GlobalRequestException;
 import com.hotelbooking.norma.exception.Message;
@@ -45,7 +50,8 @@ public class PaystackServiceImpl implements PaystackService {
     private final RestTemplate restTemplate;
     private final TransactionVerificationRepository transactionVerificationRepository;
     private final TransactionRepository transactionRepository;
-
+    private final RabbitTemplate rabbitTemplate;
+    
     @Value("${paystack.secret-key}")
     private String secretKey; 
     
@@ -155,18 +161,30 @@ public class PaystackServiceImpl implements PaystackService {
 
         // Update related transaction and booking
         transactionRepository.findByReference(reference).ifPresent(tx -> {
-            userRepository.findByEmail(tx.getEmail()).ifPresent(user -> {
-                bookingRepository.findByBookingCode(tx.getBookingCode()).ifPresent(booking -> {
-                    if (booking.getUser().getUserCode().equals(user.getUserCode())) {
-                        tx.setPaystackPaymentStatus(PaystackPaymentStatus.SUCCESS);
-                        booking.setPaymentStatus(PaymentStatus.PAID);
-                    } else {
-                        tx.setPaystackPaymentStatus(PaystackPaymentStatus.FAILED);
-                        booking.setPaymentStatus(PaymentStatus.UNPAID);
-                    }
-                    transactionRepository.save(tx);
-                    bookingRepository.save(booking);
-                });
+            bookingRepository.findByBookingCode(tx.getBookingCode()).ifPresent(booking -> {
+                // Update transaction and booking status
+                tx.setPaystackPaymentStatus(PaystackPaymentStatus.SUCCESS);
+                booking.setPaymentStatus(PaymentStatus.PAID);
+                booking.setBookingStatus(BookingStatus.COMPLETED); // Set to CONFIRMED
+                transactionRepository.save(tx);
+                bookingRepository.save(booking);
+
+                Map<String, String> placeholders = Map.of(                
+                "userName", booking.getUser().getName(),
+                "hotelName", booking.getHotel().getName(),
+                "bookingCode", booking.getBookingCode(),
+                "checkInDate", booking.getCheckInDate().toString(),
+                "checkOutDate", booking.getCheckOutDate().toString(),
+                "roomType", booking.getRoom().getRoomType().toString(),
+                "roomNumber", booking.getRoom().getRoomNumber());
+                
+                SendEmailRequest emailRequest = new SendEmailRequest(
+                booking.getUser().getEmail(),
+                "ROOM BOOKING CONFIRMATION",
+                "room-booking-confirmation",
+                placeholders);
+                emailRequest.setPlaceholders(placeholders);
+               
             });
         });
 

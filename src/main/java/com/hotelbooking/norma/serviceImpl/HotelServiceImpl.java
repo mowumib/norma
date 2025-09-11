@@ -1,25 +1,17 @@
 package com.hotelbooking.norma.serviceImpl;
 
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.api.client.http.InputStreamContent;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.Permission;
 import com.hotelbooking.norma.dto.HotelDto;
 import com.hotelbooking.norma.dto.ResponseModel;
 import com.hotelbooking.norma.dto.Request.UpdateHotelRequest;
@@ -28,6 +20,7 @@ import com.hotelbooking.norma.entity.Hotel;
 import com.hotelbooking.norma.exception.GlobalRequestException;
 import com.hotelbooking.norma.exception.Message;
 import com.hotelbooking.norma.repository.HotelRepository;
+import com.hotelbooking.norma.service.CloudinaryService;
 import com.hotelbooking.norma.service.HotelService;
 
 import lombok.RequiredArgsConstructor;
@@ -38,14 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class HotelServiceImpl implements HotelService {
 
-    @Value("${googleDrive.hotel-images-folder-id}")
-    private String imagesFolderId;
-
     private final HotelRepository hotelRepository;
-    private final Drive googleDriveService;
+    private final CloudinaryService cloudinaryService;
     private final ModelMapper modelMapper;
-
-    private final String HOTEL_IMAGES_FOLDER_ID = imagesFolderId;
         
     @Override
     public ResponseModel addHotel(HotelDto dto) throws IOException, SQLException{
@@ -61,36 +49,16 @@ public class HotelServiceImpl implements HotelService {
         Hotel newHotel = modelMapper.map(dto, Hotel.class);
         newHotel.setHotelCode("HOTEL-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8));
         
-        if (photoFile != null && !photoFile.isEmpty()) {
-            // 1. Upload photo to Google Drive
-            try {
-                // Metadata for the file
-                File fileMetadata = new File();
-                fileMetadata.setName(photoFile.getOriginalFilename()); // Or generate a unique name
-                fileMetadata.setParents(Collections.singletonList(HOTEL_IMAGES_FOLDER_ID)); // OPTIONAL: Upload to a specific folder
-
-                InputStreamContent content = new InputStreamContent(photoFile.getContentType(),
-                        new ByteArrayInputStream(photoFile.getBytes()));
-
-                File uploadedFile = googleDriveService.files().create(fileMetadata, content)
-                        .setFields("id, webViewLink, mimeType") // Request specific fields
-                        .execute();
-
-                // Make the file publicly accessible
-                com.google.api.services.drive.model.Permission newPermission = new com.google.api.services.drive.model.Permission()
-                        .setType("anyone")
-                        .setRole("reader");
-                googleDriveService.permissions().create(uploadedFile.getId(), newPermission).execute();
-
-                newHotel.setGoogleDriveFileId(uploadedFile.getId());
-                newHotel.setPhotoUrl(uploadedFile.getWebViewLink()); // This is the public link
-                newHotel.setPhotoContentType(uploadedFile.getMimeType()); // Store content type
-            } catch (IOException e) {
-                // Handle upload error, e.g., log it and rethrow a custom exception
-                throw new GlobalRequestException("Failed to upload photo to Google Drive: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } else {
-            return new ResponseModel(HttpStatus.BAD_REQUEST.value(), String.format(Message.EMPTY_PHOTO), null);
+        try {
+            String photoUrl = cloudinaryService.uploadImage(photoFile);
+            newHotel.setPhotoUrl(photoUrl);
+        } catch (IOException e) {
+            // Log the error for debugging purposes
+            System.err.println("Cloudinary upload failed: " + e.getMessage());
+            throw new GlobalRequestException(
+                "Failed to upload photo to Cloudinary: " + e.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
         Hotel savedHotel = hotelRepository.save(newHotel);
         HotelResponse response = modelMapper.map(savedHotel, HotelResponse.class);
@@ -161,57 +129,38 @@ public class HotelServiceImpl implements HotelService {
 
         // 3. Handle photo update logic
         MultipartFile photo = dto.getPhoto();
-        // If a new photo file is provided and not empty
+        String oldPhotoUrl = hotel.getPhotoUrl();
+
+        // Check if a new photo is provided
         if (photo != null && !photo.isEmpty()) {
             try {
-                // Delete old photo from Google Drive (if one exists)
-                Optional.ofNullable(hotel.getGoogleDriveFileId()).ifPresent(oldFileId -> {
-                    try {
-                        googleDriveService.files().delete(oldFileId).execute();
-                        System.out.println("Old hotel photo deleted from Google Drive: " + oldFileId);
-                    } catch (IOException e) {
-                        log.error("Failed to delete old hotel photo from Google Drive: " + oldFileId + ", Error: " + e.getMessage());
-                    }
-                });
+                // Delete old photo from Cloudinary if it exists
+                if (oldPhotoUrl != null && !oldPhotoUrl.isEmpty()) {
+                    cloudinaryService.deletePhotoByUrl(oldPhotoUrl);
+                }
 
-                // Upload new photo to Google Drive
-                File fileMetadata = new File();
-                fileMetadata.setName(photo.getOriginalFilename()); // Or generate a unique name
-                fileMetadata.setParents(Collections.singletonList(HOTEL_IMAGES_FOLDER_ID));
-
-                InputStreamContent content = new InputStreamContent(photo.getContentType(),
-                        new ByteArrayInputStream(photo.getBytes()));
-
-                File uploadedFile = googleDriveService.files().create(fileMetadata, content)
-                        .setFields("id, webViewLink, mimeType")
-                        .execute();
-
-                // Make the new file publicly accessible
-                Permission newPermission = new Permission()
-                    .setType("anyone")
-                    .setRole("reader"); // Use "reader" for public access
-                googleDriveService.permissions().create(uploadedFile.getId(), newPermission).execute();
-
-                // Update hotel entity with new Google Drive file details
-                hotel.setGoogleDriveFileId(uploadedFile.getId());
-                hotel.setPhotoUrl(uploadedFile.getWebViewLink());
-                hotel.setPhotoContentType(uploadedFile.getMimeType());
-
+                // Upload the new photo and update the hotel entity
+                String newPhotoUrl = cloudinaryService.uploadImage(photo);
+                hotel.setPhotoUrl(newPhotoUrl);
+                
             } catch (IOException e) {
-                throw new GlobalRequestException("Failed to upload new hotel photo to Google Drive: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                log.error("Failed to upload new hotel photo to Cloudinary: " + e.getMessage());
+                throw new GlobalRequestException(
+                    "Failed to upload new photo: " + e.getMessage(), 
+                    HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } 
-        // Handle explicit photo clearing: If 'clearPhoto' flag is true AND no new photo was provided
+        // Handle explicit photo clearing
         else if (Boolean.TRUE.equals(dto.getClearPhoto())) {
-            if(hotel.getGoogleDriveFileId() != null){
+            if (oldPhotoUrl != null && !oldPhotoUrl.isEmpty()) {
                 try {
-                    googleDriveService.files().delete(hotel.getGoogleDriveFileId()).execute();
-                    hotel.setGoogleDriveFileId(null);
+                    // Delete the photo from Cloudinary and clear the URL in the database
+                    cloudinaryService.deletePhotoByUrl(oldPhotoUrl);
                     hotel.setPhotoUrl(null);
-                    hotel.setPhotoContentType(null);
-                    System.out.println("Hotel photo explicitly removed for hotel: " + hotelCode);
                 } catch (IOException e) {
-                    log.error("Failed to delete old photo when 'clearPhoto' was true: " + e.getLocalizedMessage());
+                    log.error("Failed to delete old photo when 'clearPhoto' was true: " + e.getMessage());
+                    // Don't throw an error here, just log it and proceed with clearing the database entry
+                    hotel.setPhotoUrl(null);
                 }
             }
         }

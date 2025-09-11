@@ -41,12 +41,6 @@ public class Hotel extends BaseEntityAudit{
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 
-    // @Lob
-    // private Blob photo;
-
-    @Column(name = "google_drive_file_id")
-    private String googleDriveFileId;
-
     @Column(name = "photo_url")
     private String photoUrl;  
 

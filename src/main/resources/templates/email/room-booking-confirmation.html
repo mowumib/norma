@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .details-table th, .details-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .details-table th {
+            background-color: #f8f9fa;
+        }
+        .footer {
+            background-color: #e9ecef;
+            color: #6c757d;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #28a745;
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Booking Confirmed! 🎉</h1>
+        </div>
+        <div class="content">
+            <p>Hello **{{userName}}**,</p>
+            <p>Your booking at **{{hotelName}}** has been successfully confirmed. We look forward to welcoming you!</p>
+            
+            <p>Here are your booking details:</p>
+            
+            <table class="details-table">
+                <tr>
+                    <th>Booking Code</th>
+                    <td>{{bookingCode}}</td>
+                </tr>
+                <tr>
+                    <th>Hotel Name</th>
+                    <td>{{hotelName}}</td>
+                </tr>
+                <tr>
+                    <th>Room Type</th>
+                    <td>{{roomType}}</td>
+                </tr>
+                <tr>
+                    <th>Check-in Date</th>
+                    <td>{{checkInDate}}</td>
+                </tr>
+                <tr>
+                    <th>Check-out Date</th>
+                    <td>{{checkOutDate}}</td>
+                </tr>
+            </table>
+
+            <p style="text-align: center;">
+                <a href="#" class="button">Manage Your Booking</a>
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Norma Hotel Booking. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -103,14 +103,14 @@ public class HotelController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-        summary = "Update hotel by code",
-        description = "REST API for updating a hotel"
-    )
-    @PostMapping(value = "/update-hotel", consumes = "multipart/form-data")
-    public ResponseEntity<ResponseModel> updateHotel(@RequestParam String hotelCode, @ModelAttribute UpdateHotelRequest dto) {
-        ResponseModel responseModel = hotelService.updateHotelByHotelCode(hotelCode, dto);
-        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
-    }
+    // @PreAuthorize("hasRole('ADMIN')")
+    // @Operation(
+    //     summary = "Update hotel by code",
+    //     description = "REST API for updating a hotel"
+    // )
+    // @PostMapping(value = "/update-hotel", consumes = "multipart/form-data")
+    // public ResponseEntity<ResponseModel> updateHotel(@RequestParam String hotelCode, @ModelAttribute UpdateHotelRequest dto) {
+    //     ResponseModel responseModel = hotelService.updateHotelByHotelCode(hotelCode, dto);
+    //     return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
+    // }
 }

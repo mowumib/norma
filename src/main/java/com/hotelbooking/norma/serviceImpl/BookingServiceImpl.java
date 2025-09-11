@@ -3,21 +3,24 @@ package com.hotelbooking.norma.serviceImpl;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.hotelbooking.norma.dto.BookingDto;
 import com.hotelbooking.norma.dto.ResponseModel;
+import com.hotelbooking.norma.dto.Request.BookingMessage;
 import com.hotelbooking.norma.entity.Booking;
 import com.hotelbooking.norma.entity.Hotel;
 import com.hotelbooking.norma.entity.Room;
 import com.hotelbooking.norma.entity.User;
 import com.hotelbooking.norma.enums.BookingStatus;
 import com.hotelbooking.norma.enums.PaymentStatus;
+import com.hotelbooking.norma.enums.RoomStatus;
 import com.hotelbooking.norma.enums.RoomType;
-import com.hotelbooking.norma.enums.Status;
 import com.hotelbooking.norma.exception.GlobalRequestException;
 import com.hotelbooking.norma.exception.Message;
 import com.hotelbooking.norma.paystack.dto.PaystackPaymentDto;
@@ -44,6 +47,8 @@ public class BookingServiceImpl implements BookingService {
 
     private final HotelRepository hotelRepository;
 
+    private final RabbitTemplate rabbitTemplate;
+
     private final PaystackService paystackService;
     
     @Override
@@ -55,23 +60,15 @@ public class BookingServiceImpl implements BookingService {
         
         // Filter available rooms
         RoomType requestedRoomType = dto.getRoomType();
-        List<Room> rooms = hotel.getRooms();
+        Optional<Room> availableRoom = hotel.getRooms().stream()
+        .filter(room -> room != null && room.getRoomStatus().equals(RoomStatus.AVAILABLE) && room.getRoomType() == requestedRoomType)
+        .findFirst();
         
-        List<Room> availableRooms = new ArrayList<>();
-        for(Room room: rooms) {
-            if(room == null) {
-                continue;
-            }
-            if(room.getStatus().equals(Status.AVAILABLE) && room.getRoomType() == requestedRoomType) {
-                availableRooms.add(room);
-            }
-        }
-
-        if (availableRooms.isEmpty()) {
+        if (!availableRoom.isPresent()) {
             throw new GlobalRequestException("No available rooms in this hotel.", HttpStatus.BAD_REQUEST);
         }
 
-        Room selectedRoom = availableRooms.get(0);    
+        Room selectedRoom = availableRoom.get();    
 
         long numberOfNights = ChronoUnit.DAYS.between(dto.getCheckInDate(), dto.getCheckOutDate());
         if (numberOfNights < 1) {
@@ -79,25 +76,70 @@ public class BookingServiceImpl implements BookingService {
         }
 
         int totalAmount = (int) (selectedRoom.getRoomPrice() * numberOfNights);
+
         Booking booking = new Booking();
         booking.setRoom(selectedRoom);
+        booking.setRoomType(requestedRoomType);
         booking.setBookingCode("BOOKING-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8));
         booking.setAmount(totalAmount);
         booking.setPaymentStatus(PaymentStatus.UNPAID);
         booking.setCheckInDate(dto.getCheckInDate());
         booking.setCheckOutDate(dto.getCheckOutDate());
-        booking.setBookingStatus(BookingStatus.BOOKED);
-
+        booking.setBookingStatus(BookingStatus.PENDING);
         booking.setHotel(hotel);
         booking.setUser(user);
         booking.setRoomType(selectedRoom.getRoomType());
-        selectedRoom.setStatus(Status.BOOKED);
+        selectedRoom.setRoomStatus(RoomStatus.BOOKED);
 
-        bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
         roomRepository.save(selectedRoom);
-        return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_BOOKED, "Room"), booking);
+
+
+        PaystackPaymentDto paystackPaymentDto = new PaystackPaymentDto();
+        paystackPaymentDto.setAmount(totalAmount);
+        paystackPaymentDto.setEmail(user.getEmail());
+        paystackPaymentDto.setBookingCode(savedBooking.getBookingCode());
+        paystackPaymentDto.setUserCode(user.getUserCode());
+
+        ResponseModel response = paystackService.initializeTransaction(paystackPaymentDto);
+
+        // Return the response, which includes the authorizationUrl
+        if (response.getStatusCode() == HttpStatus.OK.value()) {
+            System.out.println("Booking created and payment initialized successfully.");
+            return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_BOOKED, "Room"), response);
+        } else {
+            // Handle payment initialization failure
+            System.err.println("Payment initialization failed. Booking reverted.");
+            // Revert the booking and room status to avoid a stranded booking
+            booking.setBookingStatus(BookingStatus.FAILED);
+            selectedRoom.setRoomStatus(RoomStatus.AVAILABLE);
+            bookingRepository.save(booking);
+            roomRepository.save(selectedRoom);
+            return new ResponseModel(HttpStatus.OK.value(), String.format(Message.FAILED_BOOKED, "Room"), response);
+        }
+
+        // return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_BOOKED, "Room"), savedBooking);
 
     }
+
+    /* @Override
+    public ResponseModel bookRoom(String hotelCode, String userCode, BookingDto dto) {
+        hotelRepository.findByHotelCode(hotelCode)
+                .orElseThrow(() -> new GlobalRequestException(String.format("Hotel not found with code %s", hotelCode), HttpStatus.NOT_FOUND));
+
+        userRepository.findByUserCode(userCode)
+                .orElseThrow(() -> new GlobalRequestException(String.format("User not found with code %s", userCode), HttpStatus.NOT_FOUND));
+
+        //Create a message payload with the booking details
+        BookingMessage bookingMessage = new BookingMessage(hotelCode, userCode, dto);
+
+        // Step 3: Send the message to the queue.
+        // The queue name 'booking_requests_queue' is defined in our RabbitMQ config.
+        rabbitTemplate.convertAndSend("booking_requests_queue", bookingMessage);
+
+        // Step 4: Return an immediate, non-blocking response to the user.
+        return new ResponseModel(HttpStatus.ACCEPTED.value(), "Your booking request is being processed. You will be notified shortly.", null);
+    } */
 
     @Override
     public ResponseModel cancelBooking(String bookingCode) {
@@ -107,11 +149,11 @@ public class BookingServiceImpl implements BookingService {
         Room room = roomRepository.findByRoomCode(booking.getRoom().getRoomCode())
             .orElseThrow(() -> new GlobalRequestException(String.format(Message.NOT_FOUND, "Room"), HttpStatus.NOT_FOUND));
 
-        if (room.getStatus().equals(Status.AVAILABLE)) {
+        if (room.getRoomStatus().equals(RoomStatus.AVAILABLE)) {
             return new ResponseModel(HttpStatus.OK.value(), String.format(Message.ALREADY_AVAILABLE, "Room"));
         }
 
-        room.setStatus(Status.AVAILABLE);
+        room.setRoomStatus(RoomStatus.AVAILABLE);
         booking.setBookingStatus(BookingStatus.CANCELLED);
 
         roomRepository.save(room);
@@ -159,34 +201,6 @@ public class BookingServiceImpl implements BookingService {
             roomCodes.add(booking.getRoom().getRoomCode());
         }
         return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_GET, "Booking"), bookings);
-    }
-
-    @Override
-    public ResponseModel completeBooking(String bookingCode) {
-        Booking booking = bookingRepository.findByBookingCode(bookingCode).orElseThrow(
-            () -> new GlobalRequestException(String.format(Message.NOT_FOUND, "Booking"), HttpStatus.NOT_FOUND));
-
-        String userCode = booking.getUser().getUserCode();
-
-        User user = userRepository.findByUserCode(userCode).orElseThrow(
-            () -> new GlobalRequestException(String.format(Message.NOT_FOUND, "User"), HttpStatus.NOT_FOUND));
-
-        PaystackPaymentDto paystackPaymentDto = new PaystackPaymentDto();
-        paystackPaymentDto.setAmount(booking.getAmount());
-        paystackPaymentDto.setEmail(user.getEmail());
-        paystackPaymentDto.setBookingCode(booking.getBookingCode());
-        paystackPaymentDto.setUserCode(user.getUserCode());
-        
-
-        ResponseModel response = paystackService.initializeTransaction(paystackPaymentDto);
-
-        if (response.getStatusCode() >= 500) {
-            return new ResponseModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getMessage(), null);
-        } else if (response.getStatusCode() < 200 || response.getStatusCode() >= 300) {
-            return new ResponseModel(HttpStatus.BAD_REQUEST.value(), response.getMessage(), response.getData());
-        }
-
-        return new ResponseModel(HttpStatus.OK.value(), response.getMessage(), response.getData());
     }
 
 }

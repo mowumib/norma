@@ -12,7 +12,5 @@ public interface PaystackService {
 
     ResponseModel fetchTransaction(String reference);
 
-    // ResponseModel fetchTransactions(String loanCaseCode);
-
 }
 

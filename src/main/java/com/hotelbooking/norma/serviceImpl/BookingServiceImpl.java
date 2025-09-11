@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +44,6 @@ public class BookingServiceImpl implements BookingService {
     private final RoomRepository roomRepository;
 
     private final HotelRepository hotelRepository;
-
-    private final RabbitTemplate rabbitTemplate;
 
     private final PaystackService paystackService;
     

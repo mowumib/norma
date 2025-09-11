@@ -2,6 +2,8 @@ package com.hotelbooking.norma.utils;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -20,7 +22,7 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntityAudit extends BaseEntity {
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdDate;
 
@@ -28,7 +30,7 @@ public class BaseEntityAudit extends BaseEntity {
     @Column(updatable = false)
     private String createdBy;
 
-    @LastModifiedDate
+    @UpdateTimestamp
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
 

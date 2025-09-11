@@ -12,4 +12,6 @@ public interface EmailService {
     void sendEmail(String recipient, String subject, String body);
 
     public void sendTemplatedEmail(SendEmailRequest request);
+
+    void consumeAndSendEmail(SendEmailRequest request);
 }

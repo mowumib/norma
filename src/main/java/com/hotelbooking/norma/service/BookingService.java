@@ -14,8 +14,6 @@ public interface BookingService {
 
     public ResponseModel getAllBookingsByHotelCode(String hotelCode);
 
-    public ResponseModel completeBooking(String bookingCode);
-
     public ResponseModel getAllBooking();
 
 }

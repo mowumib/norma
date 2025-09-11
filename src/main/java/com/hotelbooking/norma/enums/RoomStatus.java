@@ -1,5 +1,5 @@
 package com.hotelbooking.norma.enums;
 
-public enum Status {
+public enum RoomStatus {
     AVAILABLE, BOOKED
 }

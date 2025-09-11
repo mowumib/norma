@@ -35,6 +35,7 @@ public final class Message {
 
     public static final String EMPTY_PHOTO = "Please upload a photo";
     public static final String PHOTO_NOT_FOUND = "Photo not found";
+    public static final String FAILED_BOOKED = "%s not booked successfully";
     
     private Message() {
         throw new AssertionError("Cannot instantiate Message");

@@ -111,7 +111,7 @@ public class OnboardingServiceImpl implements OnboardingService{
         // Send email
         emailService.sendTemplatedEmail(emailRequest);
         log.info("Registration welcome mail processing for: {}",email);
-        return new ResponseModel(HttpStatus.CREATED.value(), String.format(Message.REGISTERED_SUCCESSFULLY, "User"), newUser);
+        return new ResponseModel(HttpStatus.CREATED.value(), String.format("User Registered Successfully, check email for OTP code for validation."), newUser);
             
     }
 
@@ -193,7 +193,8 @@ public class OnboardingServiceImpl implements OnboardingService{
         return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_UPDATE, "Password"), null);
     }
 
-     public ResponseModel forgotPassword(String email) {
+    @Override
+    public ResponseModel forgotPassword(String email) {
         try{
             User user = userRepository.findByEmail(email).orElseThrow(() -> new GlobalRequestException(String.format(Message.NOT_FOUND, "User"), HttpStatus.NOT_FOUND)); 
             String name = user.getName();

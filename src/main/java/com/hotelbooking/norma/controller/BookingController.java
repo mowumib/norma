@@ -98,14 +98,6 @@ public class BookingController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    @Operation(
-        summary = "Complete booking",
-        description = "REST API for complete"
-    )
-    @PostMapping("/complete-booking")
-    public ResponseEntity<ResponseModel> completeBooking(@RequestParam String bookingCode){
-        ResponseModel responseModel = bookingService.completeBooking(bookingCode);
-        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
-    }
+    // 
+    
 }

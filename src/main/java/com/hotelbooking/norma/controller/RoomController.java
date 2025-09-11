@@ -42,7 +42,7 @@ public class RoomController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @Operation(summary = "Get room by code")
     @GetMapping("/room")
     public ResponseEntity<ResponseModel> getRoomByRoomCode(@RequestParam String roomCode) {
@@ -82,11 +82,11 @@ public class RoomController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Update room by room code")
-    @PostMapping(value = "/update-room", consumes = "multipart/form-data")
-    public ResponseEntity<ResponseModel> updateRoomByRoomCode(@RequestParam String roomCode, @ModelAttribute UpdateRoomRequest dto) {
-        ResponseModel responseModel = roomService.updateRoomByRoomCode(roomCode, dto);
-        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
-    }
+    // @PreAuthorize("hasRole('ADMIN')")
+    // @Operation(summary = "Update room by room code")
+    // @PostMapping(value = "/update-room", consumes = "multipart/form-data")
+    // public ResponseEntity<ResponseModel> updateRoomByRoomCode(@RequestParam String roomCode, @ModelAttribute UpdateRoomRequest dto) {
+    //     ResponseModel responseModel = roomService.updateRoomByRoomCode(roomCode, dto);
+    //     return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
+    // }
 }

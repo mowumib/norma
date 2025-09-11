@@ -28,4 +28,5 @@ public class AppConfig {
         int strength = 10;
         return new BCryptPasswordEncoder(strength, new SecureRandom());
     }
+    
 }

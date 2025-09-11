@@ -2,6 +2,8 @@ package com.hotelbooking.norma.paystack.controller;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -72,7 +74,12 @@ public class PaystackWebhookController {
                 paystackService.verifyTransaction(reference);
                 transactionRepository.findByReference(reference).ifPresent(tx -> {
                     bookingRepository.findByBookingCode(tx.getBookingCode()).ifPresent(booking -> {
-                        // Update transaction and booking status
+                        String paidAtString = dataNode.path("paid_at").asText();
+                        // Define a formatter for the ISO 8601 date format from Paystack
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                        // Parse the string into a LocalDateTime object
+                        LocalDateTime paidAt = LocalDateTime.parse(paidAtString, formatter);
+                        tx.setPaidAt(paidAt);
                         tx.setPaystackPaymentStatus(PaystackPaymentStatus.SUCCESS);
                         booking.setPaymentStatus(PaymentStatus.PAID);
                         booking.setBookingStatus(BookingStatus.COMPLETED); // Set to CONFIRMED

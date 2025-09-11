@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.hotelbooking.norma.dto.BookingDto;
 import com.hotelbooking.norma.dto.ResponseModel;
-import com.hotelbooking.norma.dto.Request.BookingMessage;
 import com.hotelbooking.norma.entity.Booking;
 import com.hotelbooking.norma.entity.Hotel;
 import com.hotelbooking.norma.entity.Room;

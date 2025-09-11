@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.hotelbooking.norma.dto.BookingDto;
 import com.hotelbooking.norma.dto.ResponseModel;
-import com.hotelbooking.norma.dto.Request.BookingMessage;
 import com.hotelbooking.norma.entity.Booking;
 import com.hotelbooking.norma.entity.Hotel;
 import com.hotelbooking.norma.entity.Room;
@@ -46,8 +44,6 @@ public class BookingServiceImpl implements BookingService {
     private final RoomRepository roomRepository;
 
     private final HotelRepository hotelRepository;
-
-    private final RabbitTemplate rabbitTemplate;
 
     private final PaystackService paystackService;
     

@@ -35,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class PaystackWebhookController {
 
     // @Value("${paystack.secret-key}")    
-    private String paystackSecretKey = "sk_test_322cba52c7a40d8e12d59c3d5fb90a5050399f73";
+    private String paystackSecretKey = "";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

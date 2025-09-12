@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hotelbooking.norma.dto.ResponseModel;
-import com.hotelbooking.norma.dto.Request.LoginRequestDto;
-import com.hotelbooking.norma.dto.Request.RegisterUserRequestDto;
-import com.hotelbooking.norma.dto.Request.UpdatePasswordDto;
 import com.hotelbooking.norma.dto.otp.OtpTokenValidatorDto;
-import com.hotelbooking.norma.service.OnboardingService;
+import com.hotelbooking.norma.dto.request.LoginRequestDto;
+import com.hotelbooking.norma.dto.request.RegisterUserRequestDto;
+import com.hotelbooking.norma.dto.request.UpdatePasswordDto;
+import com.hotelbooking.norma.modules.onboarding.service.OnboardingService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

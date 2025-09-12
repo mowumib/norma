@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hotelbooking.norma.dto.ResponseModel;
-import com.hotelbooking.norma.dto.RoomDto;
-import com.hotelbooking.norma.service.RoomService;
+import com.hotelbooking.norma.dto.request.RoomDto;
+import com.hotelbooking.norma.modules.room.service.RoomService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

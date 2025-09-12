@@ -1,8 +1,6 @@
-package com.hotelbooking.norma.dto.Request;
+package com.hotelbooking.norma.dto.request;
 
 import java.io.Serializable;
-
-import com.hotelbooking.norma.dto.BookingDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

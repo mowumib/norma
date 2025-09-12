@@ -1,9 +1,9 @@
 package com.hotelbooking.norma.enums;
 
 public enum BookingStatus {
-    CANCELLED,
-    BOOKED,
+    PENDING,  
+    BOOKED, 
     COMPLETED,
-    PENDING,
-    FAILED
+    CANCELLED,
+    FAILED 
 }

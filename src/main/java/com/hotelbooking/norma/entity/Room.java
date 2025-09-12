@@ -36,7 +36,7 @@ public class Room extends BaseEntity{
     private Integer roomPrice;
     
     @Column(name = "status", nullable = false)
-    private RoomStatus roomStatus;
+    private RoomStatus roomStatus = RoomStatus.AVAILABLE;
 
     @Column(name = "room_description", nullable = false)
     private String roomDescription;

@@ -18,13 +18,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import com.hotelbooking.norma.email.EmailService;
 import com.hotelbooking.norma.email.dto.SendEmailRequest;
+import com.hotelbooking.norma.entity.Room;
 import com.hotelbooking.norma.enums.BookingStatus;
 import com.hotelbooking.norma.enums.PaymentStatus;
+import com.hotelbooking.norma.enums.RoomStatus;
 import com.hotelbooking.norma.paystack.enums.PaystackPaymentStatus;
 import com.hotelbooking.norma.paystack.repository.TransactionRepository;
 import com.hotelbooking.norma.paystack.service.PaystackService;
 import com.hotelbooking.norma.paystack.service.PaystackWebhookService;
 import com.hotelbooking.norma.repository.BookingRepository;
+import com.hotelbooking.norma.repository.RoomRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +48,8 @@ public class PaystackWebhookServiceImpl implements PaystackWebhookService {
     private final EmailService emailService;
 
     private final ObjectMapper objectMapper;
+
+    private final RoomRepository roomRepository;
 
     /**
      * Handles the incoming Paystack webhook request.
@@ -156,9 +161,12 @@ public class PaystackWebhookServiceImpl implements PaystackWebhookService {
                     tx.setPaidAt(paidAt);
                     tx.setPaystackPaymentStatus(PaystackPaymentStatus.SUCCESS);
                     booking.setPaymentStatus(PaymentStatus.PAID);
-                    booking.setBookingStatus(BookingStatus.COMPLETED);
+                    booking.setBookingStatus(BookingStatus.BOOKED);
+                    Room room = booking.getRoom();
+                    room.setRoomStatus(RoomStatus.BOOKED);
 
                     transactionRepository.save(tx);
+                    roomRepository.save(room);
                     bookingRepository.save(booking);
 
                     Map<String, String> placeholders = Map.of(
@@ -167,8 +175,8 @@ public class PaystackWebhookServiceImpl implements PaystackWebhookService {
                         "bookingCode", booking.getBookingCode(),
                         "checkInDate", booking.getCheckInDate().toString(),
                         "checkOutDate", booking.getCheckOutDate().toString(),
-                        "roomType", booking.getRoom().getRoomType().toString(),
-                        "roomNumber", booking.getRoom().getRoomNumber()
+                        "roomType", room.getRoomType().toString(),
+                        "roomNumber", room.getRoomNumber()
                     );
 
                     SendEmailRequest emailRequest = new SendEmailRequest(

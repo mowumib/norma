@@ -1,6 +1,8 @@
 package com.hotelbooking.norma.entity;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hotelbooking.norma.enums.BookingStatus;
@@ -12,6 +14,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "bookings")
 public class Booking extends BaseEntityAudit {
 
     @Column(name = "booking_code", unique = true, nullable = false)
@@ -42,10 +46,10 @@ public class Booking extends BaseEntityAudit {
     private int amount;
 
     @Column(name = "payment_status")
-    private PaymentStatus paymentStatus;
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
 
     @Column(name = "booking_status")
-    private BookingStatus bookingStatus;
+    private BookingStatus bookingStatus = BookingStatus.PENDING;
 
     @ManyToOne
     @JsonIgnore
@@ -60,5 +64,11 @@ public class Booking extends BaseEntityAudit {
     @JoinColumn(name = "user_code", referencedColumnName = "user_code")
     private User user;
 
+    @Column(name = "expiry_time")
+    private LocalDateTime expiryTime;
+
+    public void setExpiryDuration(Duration duration) {
+        this.expiryTime = LocalDateTime.now().plus(duration);
+    }
 
 }

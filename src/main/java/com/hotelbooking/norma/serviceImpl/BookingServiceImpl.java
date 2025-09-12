@@ -1,5 +1,7 @@
 package com.hotelbooking.norma.serviceImpl;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.hotelbooking.norma.dto.BookingDto;
@@ -85,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setHotel(hotel);
         booking.setUser(user);
         booking.setRoomType(selectedRoom.getRoomType());
-        selectedRoom.setRoomStatus(RoomStatus.BOOKED);
+        booking.setExpiryDuration(Duration.ofMinutes(30));
 
         Booking savedBooking = bookingRepository.save(booking);
         roomRepository.save(selectedRoom);
@@ -114,41 +117,25 @@ public class BookingServiceImpl implements BookingService {
             return new ResponseModel(HttpStatus.OK.value(), String.format(Message.FAILED_BOOKED, "Room"), response);
         }
 
-        // return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_BOOKED, "Room"), savedBooking);
-
     }
-
-    /* @Override
-    public ResponseModel bookRoom(String hotelCode, String userCode, BookingDto dto) {
-        hotelRepository.findByHotelCode(hotelCode)
-                .orElseThrow(() -> new GlobalRequestException(String.format("Hotel not found with code %s", hotelCode), HttpStatus.NOT_FOUND));
-
-        userRepository.findByUserCode(userCode)
-                .orElseThrow(() -> new GlobalRequestException(String.format("User not found with code %s", userCode), HttpStatus.NOT_FOUND));
-
-        //Create a message payload with the booking details
-        BookingMessage bookingMessage = new BookingMessage(hotelCode, userCode, dto);
-
-        // Step 3: Send the message to the queue.
-        // The queue name 'booking_requests_queue' is defined in our RabbitMQ config.
-        rabbitTemplate.convertAndSend("booking_requests_queue", bookingMessage);
-
-        // Step 4: Return an immediate, non-blocking response to the user.
-        return new ResponseModel(HttpStatus.ACCEPTED.value(), "Your booking request is being processed. You will be notified shortly.", null);
-    } */
 
     @Override
     public ResponseModel cancelBooking(String bookingCode) {
         Booking booking = bookingRepository.findByBookingCode(bookingCode)
             .orElseThrow(() -> new GlobalRequestException(String.format(Message.NOT_FOUND, "Booking"), HttpStatus.NOT_FOUND));
 
+        if (booking.getPaymentStatus().equals(PaymentStatus.PAID)) {
+            throw new GlobalRequestException(
+                "Cannot cancel booking because it has already been paid for.",
+                HttpStatus.BAD_REQUEST
+            );
+        }
         Room room = roomRepository.findByRoomCode(booking.getRoom().getRoomCode())
             .orElseThrow(() -> new GlobalRequestException(String.format(Message.NOT_FOUND, "Room"), HttpStatus.NOT_FOUND));
 
         if (room.getRoomStatus().equals(RoomStatus.AVAILABLE)) {
             return new ResponseModel(HttpStatus.OK.value(), String.format(Message.ALREADY_AVAILABLE, "Room"));
         }
-
         room.setRoomStatus(RoomStatus.AVAILABLE);
         booking.setBookingStatus(BookingStatus.CANCELLED);
 
@@ -167,7 +154,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = bookingRepository.findByUser_UserCode(user.getUserCode());
     
         return new ResponseModel(HttpStatus.OK.value(), 
-            String.format(Message.SUCCESS_GET, "Bookings"), bookings);
+        String.format(Message.SUCCESS_GET, "Bookings"), bookings);
     }
 
     @Override
@@ -198,5 +185,25 @@ public class BookingServiceImpl implements BookingService {
         }
         return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_GET, "Booking"), bookings);
     }
+
+
+    @Scheduled(fixedRate = 60000)
+    public void releaseUnpaidBookings() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> expiredBookings = bookingRepository.findAllByBookingStatusAndPaymentStatusAndExpiryTimeBefore(
+            BookingStatus.PENDING, PaymentStatus.UNPAID, now
+        );
+
+        for (Booking booking : expiredBookings) {
+            Room room = booking.getRoom();
+            room.setRoomStatus(RoomStatus.AVAILABLE);
+            booking.setBookingStatus(BookingStatus.CANCELLED);
+            booking.setPaymentStatus(PaymentStatus.UNPAID);
+
+            roomRepository.save(room);
+            bookingRepository.save(booking);
+        }
+}
+
 
 }

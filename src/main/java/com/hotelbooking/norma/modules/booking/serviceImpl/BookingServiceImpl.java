@@ -166,26 +166,6 @@ public class BookingServiceImpl implements BookingService {
             String.format(Message.SUCCESS_GET, "Booking"), booking);
     }
 
-    @Override
-    public ResponseModel getAllBookingsByHotelCode(String hotelCode) {
-        List<Booking> bookings = bookingRepository.findByHotel_HotelCode(hotelCode);
-        if (bookings.isEmpty()) {
-            return new ResponseModel(HttpStatus.NOT_FOUND.value(), String.format(Message.NOT_FOUND, "Hotel"), null);
-        }
-        return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_GET, "Bookings"), bookings);
-    }
-
-    @Override
-    public ResponseModel getAllBooking() {
-
-        List<Booking> bookings = bookingRepository.findAll();
-        List<String> roomCodes = new ArrayList<>();
-        for(Booking booking: bookings){
-            roomCodes.add(booking.getRoom().getRoomCode());
-        }
-        return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_GET, "Booking"), bookings);
-    }
-
 
     @Scheduled(fixedRate = 60000)
     public void releaseUnpaidBookings() {

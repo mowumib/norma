@@ -53,18 +53,7 @@ public class BookingController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
 
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-            summary = "Get all booking",
-            description = "REST API for getting all booking"
-    )
-    @GetMapping("/all-bookings")
-    public ResponseEntity<ResponseModel> getAllBooking() {
-        ResponseModel responseModel = bookingService.getAllBooking();
-        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
-    }
-
+    
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @Operation(
         summary = "Cancel Booking",
@@ -87,17 +76,4 @@ public class BookingController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    @Operation(
-        summary = "Get all bookings by hotel code",
-        description = "REST API for getting all bookings by hotel code"
-    )
-    @GetMapping("/all-bookings-by-hotel-code")
-    public ResponseEntity<ResponseModel> getAllBookingsByHotelCode(@RequestParam String hotelCode){
-        ResponseModel responseModel = bookingService.getAllBookingsByHotelCode(hotelCode);
-        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
-    }
-
-    // 
-    
 }

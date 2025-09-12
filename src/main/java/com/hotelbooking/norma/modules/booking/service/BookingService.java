@@ -10,10 +10,6 @@ public interface BookingService {
 
     public ResponseModel getAllBookingsByUserCode(String userCode);
 
-    public ResponseModel getBookingByCode(String bookingCode);
-
-    public ResponseModel getAllBookingsByHotelCode(String hotelCode);
-
-    public ResponseModel getAllBooking();
+    public ResponseModel getBookingByCode(String bookingCode);  
 
 }

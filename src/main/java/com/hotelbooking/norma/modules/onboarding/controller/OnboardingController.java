@@ -22,10 +22,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/norma/identity/user/")
+@RequestMapping("/api/v1/onboarding/user/")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Identity REST APIS", description = "REST APIS FOR ONBOARDING USERS")
+@Tag(name = "ONBOARDING REST APIS", description = "REST APIS FOR ONBOARDING USERS")
 public class OnboardingController {
 
     private final OnboardingService service;
@@ -74,7 +74,7 @@ public class OnboardingController {
         description = "REST API to Update Password"
     )
     @PostMapping("/change-password")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ResponseModel> changePassword(@RequestBody UpdatePasswordDto dto) {
         ResponseModel responseModel = service.changePassword(dto);
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);

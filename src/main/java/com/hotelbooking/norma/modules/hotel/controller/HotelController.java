@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/norma/hotels")
+@RequestMapping("/api/v1/hotels")
 @RequiredArgsConstructor
 @Validated
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -27,7 +27,7 @@ public class HotelController {
     private final HotelService hotelService;
 
 
-    @PreAuthorize("hasRole('ADMIN' ) or hasRole('USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Operation(
         summary = "Get hotel by code",
         description = "REST API for getting a hotel"
@@ -38,7 +38,7 @@ public class HotelController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
-    @PreAuthorize("hasRole('ADMIN' ) or hasRole('USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Operation(
         summary = "Get all hotels",
         description = "REST API for getting all hotels"
@@ -48,7 +48,7 @@ public class HotelController {
         return ResponseEntity.ok(hotelService.getAllHotels());
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Operation(
         summary = "Get hotel by location",
         description = "REST API for getting all hotels by location"
@@ -59,7 +59,7 @@ public class HotelController {
         return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Operation(
         summary = "Get hotel by name",
         description = "REST API for getting hotel by name"

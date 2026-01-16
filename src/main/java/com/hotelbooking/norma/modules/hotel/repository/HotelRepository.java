@@ -22,6 +22,5 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
     
     public boolean existsByNameIgnoreCase(String name);
 
-    @Query("SELECT h FROM Hotel h JOIN FETCH h.rooms WHERE h.hotelCode = :hotelCode")
-    Optional<Hotel> findByHotelCodeWithRooms(@Param("hotelCode") String hotelCode);
+    
 }

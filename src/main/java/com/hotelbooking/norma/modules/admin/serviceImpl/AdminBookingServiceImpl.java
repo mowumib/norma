@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 
 import com.hotelbooking.norma.dto.ResponseModel;
 import com.hotelbooking.norma.entity.Booking;
+import com.hotelbooking.norma.entity.User;
 import com.hotelbooking.norma.exception.GlobalRequestException;
 import com.hotelbooking.norma.exception.Message;
+import com.hotelbooking.norma.modules.admin.repository.AdminBookingRepository;
 import com.hotelbooking.norma.modules.admin.service.AdminBookingService;
-import com.hotelbooking.norma.modules.booking.repository.BookingRepository;
+import com.hotelbooking.norma.modules.onboarding.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminBookingServiceImpl implements AdminBookingService {
 
-    private final BookingRepository bookingRepository;
+    private final AdminBookingRepository bookingRepository;
+    private final UserRepository userRepository;
     @Override
     public ResponseModel getAllBookingsByHotelCode(String hotelCode) {
         List<Booking> bookings = bookingRepository.findByHotel_HotelCode(hotelCode);
@@ -27,6 +30,17 @@ public class AdminBookingServiceImpl implements AdminBookingService {
             return new ResponseModel(HttpStatus.NOT_FOUND.value(), String.format(Message.NOT_FOUND, "Hotel"), null);
         }
         return new ResponseModel(HttpStatus.OK.value(), String.format(Message.SUCCESS_GET, "Bookings"), bookings);
+    }
+
+    @Override
+    public ResponseModel getAllBookingsByUserCode(String userCode){
+    User user = userRepository.findByUserCode(userCode).orElseThrow(
+        () -> new GlobalRequestException(String.format(Message.NOT_FOUND, "User"), HttpStatus.NOT_FOUND));;
+    
+        List<Booking> bookings = bookingRepository.findByUser_UserCode(user.getUserCode());
+    
+        return new ResponseModel(HttpStatus.OK.value(), 
+        String.format(Message.SUCCESS_GET, "Bookings"), bookings);
     }
 
     @Override

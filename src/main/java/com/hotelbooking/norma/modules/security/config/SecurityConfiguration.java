@@ -34,9 +34,10 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/norma/identity/user/signup/**","/norma/identity/user/login/**", 
-                    "/norma/identity/user/verify-otp-code/**", "/norma/identity/user/forgot-password/**", 
-                    "/norma/identity/user/reset-password/**", "/norma/identity/user/resend-otp-code/**", "/error").permitAll()
+                    .requestMatchers("/api/v1/onboarding/user/signup/**","/api/v1/onboarding/user/login/**", 
+                    "/api/v1/onboarding/user/verify-otp-code/**", "/api/v1/onboarding/user/forgot-password/**", 
+                    "/api/v1/onboarding/user/reset-password/**", "/api/v1/onboarding/user/resend-otp-code/**", "/error").permitAll()
+                    .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/v1/paystack/webhook").permitAll()
                     .anyRequest().authenticated()
                 );

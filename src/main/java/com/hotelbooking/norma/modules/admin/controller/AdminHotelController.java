@@ -26,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/admin/hotels")
+@RequestMapping("/api/v1/admin/hotels")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "ADMIN HOTEL CONTROLLER REST APIS IN HOTEL SERVICE", description = "REST APIS IN HOTEL SERVICE")

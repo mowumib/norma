@@ -3,7 +3,6 @@ package com.hotelbooking.norma.modules.booking.serviceImpl;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -167,7 +166,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 300000)
     public void releaseUnpaidBookings() {
         LocalDateTime now = LocalDateTime.now();
         List<Booking> expiredBookings = bookingRepository.findAllByBookingStatusAndPaymentStatusAndExpiryTimeBefore(

@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/admin/identity")
+@RequestMapping("/api/v1/admin/onboarding")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "ADMIN IDENTITY CONTROLLER REST APIS IN HOTEL SERVICE", description = "REST APIS IN HOTEL SERVICE")
+@Tag(name = "ADMIN ONBOARDING CONTROLLER REST APIS IN HOTEL SERVICE", description = "REST APIS IN HOTEL SERVICE")
 public class AdminOnboardingController {
 
 }

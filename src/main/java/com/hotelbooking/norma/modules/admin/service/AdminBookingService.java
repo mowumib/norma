@@ -8,4 +8,6 @@ public interface AdminBookingService {
     public ResponseModel getBookingByCode(String bookingCode);
 
     public ResponseModel getAllBookingsByHotelCode(String hotelCode);
+
+    public ResponseModel getAllBookingsByUserCode(String userCode);
 }

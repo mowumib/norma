@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.hotelbooking.norma.entity.Role;
 import com.hotelbooking.norma.enums.RoleEnum;
-import com.hotelbooking.norma.repository.RoleRepository;
+import com.hotelbooking.norma.modules.onboarding.repository.RoleRepository;
 
 @Component
 @Order(1)

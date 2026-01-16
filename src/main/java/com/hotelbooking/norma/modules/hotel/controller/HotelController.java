@@ -1,0 +1,72 @@
+package com.hotelbooking.norma.modules.hotel.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.hotelbooking.norma.dto.ResponseModel;
+import com.hotelbooking.norma.modules.hotel.service.HotelService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/v1/hotels")
+@RequiredArgsConstructor
+@Validated
+@CrossOrigin(origins = "*", maxAge = 3600)
+@Tag(name = "HOTEL CONTROLLER REST APIS IN HOTEL SERVICE", description = "REST APIS IN HOTEL SERVICE")
+public class HotelController {
+
+    private final HotelService hotelService;
+
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @Operation(
+        summary = "Get hotel by code",
+        description = "REST API for getting a hotel"
+    )
+    @GetMapping("/hotel-by-code/{hotelCode}")
+    public ResponseEntity<ResponseModel> getHotelByHotelCode(@PathVariable String hotelCode) {
+        ResponseModel responseModel = hotelService.getHotelByHotelCode(hotelCode);
+        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @Operation(
+        summary = "Get all hotels",
+        description = "REST API for getting all hotels"
+    )
+    @GetMapping("")
+    public ResponseEntity<ResponseModel> getAllHotels() {
+        return ResponseEntity.ok(hotelService.getAllHotels());
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @Operation(
+        summary = "Get hotel by location",
+        description = "REST API for getting all hotels by location"
+    )
+    @GetMapping("/hotel-by-location/{location}")
+    public ResponseEntity<ResponseModel> getHotelByLocation(@PathVariable String location) {
+        ResponseModel responseModel = hotelService.getHotelByLocation(location);
+        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @Operation(
+        summary = "Get hotel by name",
+        description = "REST API for getting hotel by name"
+    )
+    @GetMapping("/hotel-by-name/{name}")
+    public ResponseEntity<ResponseModel> getHotelByName(@PathVariable String name) {
+        ResponseModel responseModel = hotelService.getHotelByName(name);
+        return ResponseEntity.status(responseModel.getStatusCode()).body(responseModel);
+    }
+}

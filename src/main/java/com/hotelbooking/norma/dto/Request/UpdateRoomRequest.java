@@ -1,4 +1,4 @@
-package com.hotelbooking.norma.dto.Request;
+package com.hotelbooking.norma.dto.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
